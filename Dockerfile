@@ -18,4 +18,5 @@ RUN conda env create -n DE-nf -f /environnement.yml && conda clean -a
 RUN apt-get install -y curl
 RUN apt-get install -y cmake python-pip python-dev
 RUN pip install cget 
+RUN R -e "install.packages('gridExtra',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 ENV PATH /opt/conda/envs/DE-nf/bin:$PATH
