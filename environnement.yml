@@ -16,7 +16,7 @@ dependencies:
   - bioconductor-biomart
   - bioconductor-genefilter
   - r-base>=4
-  - r-gridextra
+  - r-cran-gridextra
   - r-pheatmap=1.0.12
   - r-RColorBrewer=1.1-2
   - r-stringr=1.4.0
