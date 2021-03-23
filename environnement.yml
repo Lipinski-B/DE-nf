@@ -12,14 +12,16 @@ dependencies:
   - fastqc=0.11.9
   - multiqc=1.10
   - bioconductor-deseq2=1.30.0-0
+  - bioconductor-edger
+  - bioconductor-biomart
+  - bioconductor-genefilter
+  - r-base>=4
+  - r-gridextra
   - r-pheatmap=1.0.12
   - r-RColorBrewer=1.1-2
   - r-stringr=1.4.0
   - r-ggplot2=3.3.3
   - r-tidyverse=1.3.0
-  - bioconductor-edger
-  - bioconductor-biomart
-  - bioconductor-genefilter
   - r-ggbeeswarm
   - r-nmf
-  - r-gridextra
+
