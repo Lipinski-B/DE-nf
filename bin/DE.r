@@ -10,7 +10,7 @@ library(stringr)
 library(ggplot2)
 library(NMF)
 library(tidyverse)
-install.packages("gridExtra_2.3.tar.gz", repos = NULL, type="source")
+install.packages(as.character(commandArgs(TRUE)[3]), repos = NULL, type="source")
 library(gridExtra)
 
 remplace <- function(name){name <- gsub("-", ".", name)} 
