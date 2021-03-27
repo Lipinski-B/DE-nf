@@ -204,6 +204,7 @@ if(params.R=="on"){
     input:
     file data from Result.collect()
     file metadata from Channel.fromPath(params.metadata).collect()
+    file data from Channel.fromPath("!{baseDir}/bin/gridExtra_2.3.tar.gz").collect()
     
     output:
     file "*.pdf" into Result_DE

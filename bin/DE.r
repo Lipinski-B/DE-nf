@@ -10,14 +10,15 @@ library(stringr)
 library(ggplot2)
 library(NMF)
 library(tidyverse)
+install.packages("gridExtra_2.3.tar.gz", repos = NULL, type="source")
 library(gridExtra)
 
 remplace <- function(name){name <- gsub("-", ".", name)} 
 split <- function(name){name <- str_split(name,"_")[[1]][1]}
 
-matrix <- "/home/boris/Bureau/DE/DE-nf/output/finale.txt" 
+#matrix <- "/home/boris/Bureau/DE/DE-nf/output/finale.txt" 
 matrix = as.character(commandArgs(TRUE)[1])
-metadata <- "/home/boris/Bureau/DE/DE-nf/data/Metadata.xls"
+#metadata <- "/home/boris/Bureau/DE/DE-nf/data/Metadata.xls"
 metadata = as.character(commandArgs(TRUE)[2])
 
 ###############################################################################################################################################
@@ -27,7 +28,7 @@ DEA_analysis <- function(matrix, metadata){
   #load
   countData <- read.table(matrix, row.names = 1, header = T, sep = "\t")
   countData <- head(countData,-5)
-  countData <- countData[1:61]
+  #countData <- countData[1:61]
   
   #cutoff
   cutoff <- as.integer(cpm(10, mean(colSums(countData))))
@@ -104,7 +105,7 @@ plotPCA(rld, intgroup = "Sex")+ theme_bw() + ggtitle("Rlog transformed counts")
 
 # aheatmap
 aheatmap(topGenes, Colv = TRUE, hclustfun = "average", scale = "row", main="By modality") 
-aheatmap(topGenes_sex, Colv = TRUE, hclustfun = "average", scale = "row", main="By sex") 
+aheatmap(topGenes, Colv = TRUE, hclustfun = "average", scale = "row", main="By sex") 
 #top40Genes <- head(assay(rld)[rownames(topGenes),], 40)
 #aheatmap(top40Genes, Colv = TRUE, hclustfun = "average", scale = "row")
 
