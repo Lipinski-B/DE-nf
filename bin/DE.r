@@ -11,6 +11,8 @@ library(ggplot2)
 library(NMF)
 library(tidyverse)
 install.packages(as.character(commandArgs(TRUE)[3]), repos = NULL, type="source")
+library(grid)
+install.packages(as.character(commandArgs(TRUE)[4]), repos = NULL, type="source")
 library(gridExtra)
 
 remplace <- function(name){name <- gsub("-", ".", name)} 

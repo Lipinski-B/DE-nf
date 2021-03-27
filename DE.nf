@@ -210,6 +210,6 @@ if(params.R=="on"){
     
     shell:
     '''
-    Rscript !{baseDir}/bin/DE.r finale.txt !{metadata} !{baseDir}/bin/gridExtra_2.3.tar.gz
+    Rscript !{baseDir}/bin/DE.r finale.txt !{metadata} !{baseDir}/bin/grid_0.7-4.tar.gz !{baseDir}/bin/gridExtra_2.3.tar.gz
     '''
     }}
