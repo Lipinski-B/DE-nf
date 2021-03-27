@@ -19,4 +19,3 @@ RUN apt-get install -y curl
 RUN apt-get install -y cmake python-pip python-dev
 RUN pip install cget 
 ENV PATH /opt/conda/envs/DE-nf/bin:$PATH
-RUN Rscript -e "install.packages('gridExtra')"

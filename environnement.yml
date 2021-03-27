@@ -3,7 +3,7 @@ name: DE-nf
 channels:
   - conda-forge
   - bioconda
-  - defaults
+  - r
 
 dependencies:
   - star=2.7.7a
