@@ -18,9 +18,9 @@ library(gridExtra)
 remplace <- function(name){name <- gsub("-", ".", name)} 
 split <- function(name){name <- str_split(name,"_")[[1]][1]}
 
-#matrix <- "/home/boris/Bureau/DE/DE-nf/output/finale.txt" 
+#matrix <- "merge/finale.txt" for exemple
 matrix = as.character(commandArgs(TRUE)[1])
-#metadata <- "/home/boris/Bureau/DE/DE-nf/data/Metadata.xls"
+#metadata <- "data/Metadata.xls" for exemple
 metadata = as.character(commandArgs(TRUE)[2])
 
 ###############################################################################################################################################
