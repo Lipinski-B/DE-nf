@@ -10,14 +10,14 @@ library(stringr)
 library(ggplot2)
 library(NMF)
 library(tidyverse)
-library(gridExtra)
+
 
 remplace <- function(name){name <- gsub("-", ".", name)} 
 split <- function(name){name <- str_split(name,"_")[[1]][1]}
 
-#matrix <- "/home/boris/Bureau/DE/DE-nf/output/finale.txt" 
+matrix <- "/home/boris/Bureau/DE/DE-nf/output/finale.txt" 
 matrix = as.character(commandArgs(TRUE)[1])
-#metadata <- "/home/boris/Bureau/DE/DE-nf/data/Metadata.xls"
+metadata <- "/home/boris/Bureau/DE/DE-nf/data/Metadata.xls"
 metadata = as.character(commandArgs(TRUE)[2])
 
 ###############################################################################################################################################
@@ -87,12 +87,14 @@ topGenes <- assay(rld)[rownames(result),]
 ###############################################################################################################################################
 ## -- Figure time -- ##
 #######################
-pdf("Result.pdf", height = 12, width = 12)
+pdf("/mnt/DE/result/R/Result.pdf", height = 12, width = 12)
 
 # Résultat
 grid.text("Résultats des top gènes les plus différentiellement exprimés :", x = 0.05, hjust = 0.05, vjust = -5, gp = gpar(fontsize = 25))
-grid.table(result)
-
+print(result)
+plot.new()
+text(x=.1, y=.1, result, cex = 10)
+dev.off()
 # Dendrogramme
 rlog.norm.counts <- assay(rld)
 distance.m_rlog  <- as.dist(1 - cor(rlog.norm.counts , method = "pearson" ))
