@@ -90,7 +90,7 @@ topGenes <- assay(rld)[rownames(result),]
 ###############################################################################################################################################
 ## -- Figure time -- ##
 #######################
-pdf("/mnt/DE/result/R/Result.pdf", height = 12, width = 12)
+pdf("Result.pdf", height = 12, width = 12)
 
 # Résultat
 grid.text("Résultats des top gènes les plus différentiellement exprimés :", x = 0.05, hjust = 0.05, vjust = -20, gp = gpar(fontsize = 25))
