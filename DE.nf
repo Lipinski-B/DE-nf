@@ -23,7 +23,7 @@ if (params.help) {
     log.info "Optional arguments:"
     log.info "--STAR_Index                  FOLDER                      Folder where you can find the STAR index. If this option is not used, please make sure to provide the --FNA option in addition to the --GTF option to perform the STAR index"
     log.info "--FNA                         FILE                        Path where you can find the FNA file to use for the STAR index."
-    log.info "--R                           STRING                      on/'off : Chose to use or not the standard R analyses from the pipeline."
+    log.info "--R                           STRING                      on/off : Chose to use or not the standard R analyses from the pipeline."
     log.info "--metadata                    FILE                        Path where you can find the XLS file to use as metadata for the R analyse. Mandatory is the option --R in on."
     log.info "--thread                      INT                         Number of thread to use."
   
@@ -87,29 +87,24 @@ process Mapping{
   shell:
   if(params.STAR_Index==null) {
     '''
+    ## -- Index construction -------------------------------------------------------------- ##
     mkdir STARIndex_last/
     STAR --runThreadN !{params.thread} \
-      --runMode genomeGenerate \
-      --genomeDir STARIndex_last/ \
-      --genomeFastaFiles !{FNA} \
-      --sjdbGTFfile !{GTF} \
-      --sjdbOverhang 74 \
-      --genomeSAsparseD 12
+      --runMode genomeGenerate --genomeDir STARIndex_last/ --genomeFastaFiles !{FNA} \
+      --sjdbGTFfile !{GTF} --sjdbOverhang 149 --genomeSAsparseD 2
 
     mkdir data/
     mv *gz data/
     cd data/ 
 
-    #Mapping analyse :
+    ## -- Mapping analyse ----------------------------------------------------------------- ##
     ulimit -v 27598325157
-    for file in *; do
+    list=`ls -1 | sed 's/_R.*//' | uniq`
+    for file in $list; do
       STAR \
-      --runThreadN !{params.thread} \
-      --genomeDir ../STARIndex_last \
-      --readFilesCommand gunzip -c \
-      --readFilesIn $file \
-      --outFileNamePrefix $file \
-      --outSAMunmapped Within
+      --runThreadN !{params.thread} --genomeDir ../STARIndex_last --readFilesCommand gunzip -c \
+      --readFilesIn $file'_R1.fastq.gz' $file'_R2.fastq.gz' \
+      --outFileNamePrefix $file --outSAMunmapped Within
     done
 
     mv * ../.
@@ -126,16 +121,14 @@ process Mapping{
     mv *gz data/
     cd data/ 
 
-    #Mapping analyse :
+    ## -- Mapping analyse ----------------------------------------------------------------- ##
     ulimit -v 27598325157
-    for file in *; do
+    list=`ls -1 | sed 's/_R.*//' | uniq`
+    for file in $list; do
       STAR \
-      --runThreadN !{params.thread} \
-      --genomeDir ../!{FNA} \
-      --readFilesCommand gunzip -c \
-      --readFilesIn $file \
-      --outFileNamePrefix $file \
-      --outSAMunmapped Within
+      --runThreadN !{params.thread} --genomeDir ../!{FNA} --readFilesCommand gunzip -c \
+      --readFilesIn $file'_R1.fastq.gz' $file'_R2.fastq.gz' \
+      --outFileNamePrefix $file --outSAMunmapped Within
     done
     
     mv * ../.
@@ -161,7 +154,7 @@ process Intersection{
   
   shell:
   '''
-  #Intersection analyse :
+  ## -- Intersection analyse ------------------------------------------------------------- ##
   for file in *.sam; do
     htseq-count --stranded=yes --nprocesses=!{params.thread} --mode=union $file !{GTF} > ${file}_intersect.txt
   done
@@ -178,7 +171,7 @@ process Merge_result{
   
   shell:
   '''
-  #Differancial expression analyses :
+  ## -- Differancial expression analyse ------------------------------------------------- ##
   files=(*)
   awk '{print $1}' ${files[0]} > AAAA.txt
 
