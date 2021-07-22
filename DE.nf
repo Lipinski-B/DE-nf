@@ -98,10 +98,10 @@ process Mapping{
     cd data/ 
 
     ## -- Mapping analyse ----------------------------------------------------------------- ##
-    ulimit -v 27598325157
+    ulimit -v 127598325157
     list=`ls -1 | sed 's/_R.*//' | uniq`
     for file in $list; do
-      STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} --limitBAMsortRAM 27598325157 \
+      STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} --limitBAMsortRAM 127598325157 \
       --runThreadN !{params.thread} --genomeDir ../STARIndex_last --readFilesCommand gunzip -c \
       --readFilesIn $file'_R1.fastq.gz' $file'_R2.fastq.gz' \
       --outFileNamePrefix $file --outSAMunmapped Within
