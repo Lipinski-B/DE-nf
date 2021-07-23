@@ -33,7 +33,6 @@ if (params.help) {
     log.info "help:                               ${params.help}"
 }
 
-
 // -- Path :
 params.input = null
 params.output = null
@@ -46,7 +45,6 @@ params.STAR_Index = null
 params.FNA = params.STAR_Index
 params.metadata = null
 //params.metadata = "!{baseDir}/data/Metadata.xls"
-
 
 // -- Pipeline :
 process MultiQC{ 
@@ -81,7 +79,7 @@ process Mapping{
   file FNA from Channel.fromPath(params.FNA).collect()
 
   output:
-  file "*Aligned.out.sam" into Mapping_sam
+  file "*Aligned.sortedByCoord.out.bam" into Mapping_bam
   file "other/" into Mapping_Log
   
   shell:
@@ -146,7 +144,7 @@ process Intersection{
   cpus params.thread
 
   input:
-  file data from Mapping_sam
+  file data from Mapping_bam
   file GTF from Channel.fromPath(params.GTF).collect()
   
   output:
@@ -154,9 +152,9 @@ process Intersection{
   
   shell:
   '''
-  ## -- Intersection analyse ------------------------------------------------------------- ##
-  for file in *.sam; do
-    htseq-count --stranded=yes --nprocesses=!{params.thread} --mode=union $file !{GTF} > ${file}_intersect.txt
+  ## -- Intersection analyse ----------------------------------------------- ##
+  for file in *.bam; do
+    htseq-count -f bam -n !{params.thread} $file !{GTF} > ${file}_intersect.txt
   done
   '''}
 
