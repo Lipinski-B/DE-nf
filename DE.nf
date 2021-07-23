@@ -91,50 +91,37 @@ process Mapping{
       --runMode genomeGenerate --genomeDir STARIndex_last/ --genomeFastaFiles !{FNA} \
       --sjdbGTFfile !{GTF} --sjdbOverhang 149 --genomeSAsparseD 2
 
-    mkdir data/
-    mv *gz data/
-    cd data/ 
+    mkdir data/ ; mv *gz data/ ; cd data/ 
 
-    ## -- Mapping analyse ----------------------------------------------------------------- ##
+    ## -- Mapping analyse ----------------------------------------------------------------- ## --limitBAMsortRAM 127598325157
     ulimit -v 127598325157
     list=`ls -1 | sed 's/_R.*//' | uniq`
     for file in $list; do
-      STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} --limitBAMsortRAM 127598325157 \
+      STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} \
       --runThreadN !{params.thread} --genomeDir ../STARIndex_last --readFilesCommand gunzip -c \
       --readFilesIn $file'_R1.fastq.gz' $file'_R2.fastq.gz' \
       --outFileNamePrefix $file --outSAMunmapped Within
     done
 
-    mv * ../.
-    cd ..
-    rm -r data/
-
-    mkdir other
-    mv STARIndex_last/ other/
-    mv *Log* other/
+    mv * ../. ; cd .. ; rm -r data/
+    mkdir other ; mv STARIndex_last/ other/ ; mv *Log* other/
     '''
   } else {
     '''
-    mkdir data/
-    mv *gz data/
-    cd data/ 
+    mkdir data/ ; mv *gz data/ ; cd data/ 
 
-    ## -- Mapping analyse ----------------------------------------------------------------- ##
-    ulimit -v 27598325157
+    ## -- Mapping analyse ----------------------------------------------------------------- ## --limitBAMsortRAM 127598325157
+    ulimit -v 17598325157
     list=`ls -1 | sed 's/_R.*//' | uniq`
     for file in $list; do
-      STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} --limitBAMsortRAM 27598325157 \
+      STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} \
       --runThreadN !{params.thread} --genomeDir ../!{FNA} --readFilesCommand gunzip -c \
       --readFilesIn $file'_R1.fastq.gz' $file'_R2.fastq.gz' \
       --outFileNamePrefix $file --outSAMunmapped Within
     done
     
-    mv * ../.
-    cd ..
-    rm -r data/
-
-    mkdir other
-    mv *Log* other/
+    mv * ../. ; cd .. ; rm -r data/
+    mkdir other ; mv *Log* other/
     '''
     }}
 
