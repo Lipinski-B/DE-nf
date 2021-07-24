@@ -94,7 +94,7 @@ process Mapping{
     mkdir data/ ; mv *gz data/ ; cd data/ 
 
     ## -- Mapping analyse ----------------------------------------------------------------- ## --limitBAMsortRAM 127598325157
-    ulimit -v 127598325157
+    #ulimit -v 127598325157
     list=`ls -1 | sed 's/_R.*//' | uniq`
     for file in $list; do
       STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} \
@@ -111,7 +111,7 @@ process Mapping{
     mkdir data/ ; mv *gz data/ ; cd data/ 
 
     ## -- Mapping analyse ----------------------------------------------------------------- ## --limitBAMsortRAM 127598325157
-    ulimit -v 17598325157
+    #ulimit -v 17598325157
     list=`ls -1 | sed 's/_R.*//' | uniq`
     for file in $list; do
       STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} \
