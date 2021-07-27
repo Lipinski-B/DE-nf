@@ -109,7 +109,7 @@ if(params.QC_cloud==null){
     } else {
       '''
       list=`ls -1 | sed 's/_R.*//' | uniq`
-      
+
       ## -- Mapping analyse ----------------------------------------------------------------- ##
       for file in $list; do
         STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} \
@@ -130,10 +130,11 @@ if(params.QC_cloud==null){
     file data from Channel.fromPath(params.input+'*').collect()
     file GTF from Channel.fromPath(params.GTF).collect()
     file FNA from Channel.fromPath(params.FNA).collect()
+    file index from Channel.fromPath(params.FNA+'/*').collect()
 
     output:
     file "*.sorted.bam" into Mapping_bam
-    file "other/" into Mapping_Log
+    file "BWAIndex_last/" into Mapping_Log
     
     shell:
     if(params.index==null) {
@@ -141,30 +142,35 @@ if(params.QC_cloud==null){
       list=`ls -1 | sed 's/_R.*//' | uniq`
 
       ## -- Index construction -------------------------------------------------------------- ##
-      bwa index hg38.fa
+      bwa index !{FNA}
 
       ## -- Mapping analyse ----------------------------------------------------------------- ##
       for file in $list; do
-        bwa mem -o $file.sam -t !{params.thread} hg38.fa $file'_R1.fastq.gz' $file'_R2.fastq.gz'
+        bwa mem -o $file.sam -t !{params.thread} !{FNA} $file'_R1.fastq.gz' $file'_R2.fastq.gz'
         samtools view -@ $T -b -O BAM -o $file.bam $file.sam
         samtools sort -@ $T $file.bam -o $file.sorted.bam
         samtools index -@ $T -b $file.sorted.bam
       done
 
-      mkdir other ; mv STARIndex_last/ other/ ; mv *Log* other/
+      mkdir BWAIndex_last
+      mv !{FNA}* BWAIndex_last/
+
       '''
     } else {
       '''
-      ## -- Mapping analyse ----------------------------------------------------------------- ##
       list=`ls -1 | sed 's/_R.*//' | uniq`
+      
+      ## -- Mapping analyse ----------------------------------------------------------------- ##
       for file in $list; do
-        bwa mem -o $file.sam -t !{params.thread} hg38.fa $file'_R1.fastq.gz' $file'_R2.fastq.gz'
-        samtools view -@ $T -b -O BAM -o $file.bam $file.sam
-        samtools sort -@ $T $file.bam -o $file.sorted.bam
-        samtools index -@ $T -b $file.sorted.bam
+        bwa mem -o $file.sam -t !{params.thread} !{FNA} $file'_R1.fastq.gz' $file'_R2.fastq.gz'
+        samtools view -@ !{params.thread} -b -O BAM -o $file.bam $file.sam
+        samtools sort -@ !{params.thread} $file.bam -o $file.sorted.bam
+        samtools index -@ !{params.thread} -b $file.sorted.bam
       done
       
-      #mkdir other ; mv *Log* other/
+      mkdir BWAIndex_last
+      mv !{FNA}* BWAIndex_last/
+    
       '''
       }}
   }
