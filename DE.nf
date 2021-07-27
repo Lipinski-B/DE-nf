@@ -21,9 +21,10 @@ if (params.help) {
     log.info "--GTF                         FILE                        Path where you can find the annotation to use."
     log.info ""
     log.info "Optional arguments:"
-    log.info "--STAR_Index                  FOLDER                      Folder where you can find the STAR index. If this option is not used, please make sure to provide the --FNA option in addition to the --GTF option to perform the STAR index"
+    log.info "--index                       FOLDER                      Folder where you can find the STAR/BWA index. If this option is not used, please make sure to provide the --FNA option in addition to the --GTF option to perform the index"
+    log.info "--mapper                      STRING                      [STAR/BWA] Choose the mapper to use between STAR and BWA MEME (Default : BWA MEM)"
     log.info "--FNA                         FILE                        Path where you can find the FNA file to use for the STAR index."
-    log.info "--R                           STRING                      on/off : Chose to use or not the standard R analyses from the pipeline."
+    log.info "--R                           STRING                      [on/off] : Chose to use or not the standard R analyses from the pipeline."
     log.info "--metadata                    FILE                        Path where you can find the XLS file to use as metadata for the R analyse. Mandatory is the option --R in on."
     log.info "--thread                      INT                         Number of thread to use."
   
@@ -41,9 +42,10 @@ params.GTF = null
 // -- Option :
 params.R = "off"
 params.thread = 1
-params.STAR_Index = null
-params.FNA = params.STAR_Index
+params.index = null
+params.FNA = params.index
 params.metadata = null
+params.mapper = "BWA"
 //params.metadata = "!{baseDir}/data/Metadata.xls"
 
 // -- Pipeline :
@@ -68,63 +70,104 @@ process MultiQC{
   '''}
 
 
-
-process Mapping{ 
-  publishDir params.output+'/mapping/', mode: 'copy'
-  cpus params.thread
-  
-  input:
-  file data from Channel.fromPath(params.input+'*').collect()
-  file GTF from Channel.fromPath(params.GTF).collect()
-  file FNA from Channel.fromPath(params.FNA).collect()
-
-  output:
-  file "*Aligned.sortedByCoord.out.bam" into Mapping_bam
-  file "other/" into Mapping_Log
-  
-  shell:
-  if(params.STAR_Index==null) {
-    '''
-    ## -- Index construction -------------------------------------------------------------- ##
-    mkdir STARIndex_last/
-    STAR --runThreadN !{params.thread} \
-      --runMode genomeGenerate --genomeDir STARIndex_last/ --genomeFastaFiles !{FNA} \
-      --sjdbGTFfile !{GTF} --sjdbOverhang 149 --genomeSAsparseD 2
-
-    mkdir data/ ; mv *gz data/ ; cd data/ 
-
-    ## -- Mapping analyse ----------------------------------------------------------------- ## --limitBAMsortRAM 127598325157
-    #ulimit -v 127598325157
-    list=`ls -1 | sed 's/_R.*//' | uniq`
-    for file in $list; do
-      STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} \
-      --runThreadN !{params.thread} --genomeDir ../STARIndex_last --readFilesCommand gunzip -c \
-      --readFilesIn $file'_R1.fastq.gz' $file'_R2.fastq.gz' \
-      --outFileNamePrefix $file --outSAMunmapped Within
-    done
-
-    mv * ../. ; cd .. ; rm -r data/
-    mkdir other ; mv STARIndex_last/ other/ ; mv *Log* other/
-    '''
-  } else {
-    '''
-    mkdir data/ ; mv *gz data/ ; cd data/ 
-
-    ## -- Mapping analyse ----------------------------------------------------------------- ## --limitBAMsortRAM 127598325157
-    #ulimit -v 17598325157
-    list=`ls -1 | sed 's/_R.*//' | uniq`
-    for file in $list; do
-      STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} \
-      --runThreadN !{params.thread} --genomeDir ../!{FNA} --readFilesCommand gunzip -c \
-      --readFilesIn $file'_R1.fastq.gz' $file'_R2.fastq.gz' \
-      --outFileNamePrefix $file --outSAMunmapped Within
-    done
+if(params.QC_cloud==null){
+  process Mapping{ 
+    publishDir params.output+'/mapping/', mode: 'copy'
+    cpus params.thread
     
-    mv * ../. ; cd .. ; rm -r data/
-    mkdir other ; mv *Log* other/
-    '''
-    }}
+    input:
+    file data from Channel.fromPath(params.input+'*').collect()
+    file GTF from Channel.fromPath(params.GTF).collect()
+    file FNA from Channel.fromPath(params.FNA).collect()
 
+    output:
+    file "*Aligned.sortedByCoord.out.bam" into Mapping_bam
+    file "other/" into Mapping_Log
+    
+    shell:
+    if(params.index==null) {
+      '''
+      list=`ls -1 | sed 's/_R.*//' | uniq`
+
+      ## -- Index construction -------------------------------------------------------------- ##
+      mkdir STARIndex_last/
+      STAR --runThreadN !{params.thread} \
+        --runMode genomeGenerate --genomeDir STARIndex_last/ --genomeFastaFiles !{FNA} \
+        --sjdbGTFfile !{GTF} --sjdbOverhang 149 --genomeSAsparseD 2
+
+
+      ## -- Mapping analyse ----------------------------------------------------------------- ##
+      for file in $list; do
+        STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} \
+        --runThreadN !{params.thread} --genomeDir ../STARIndex_last --readFilesCommand gunzip -c \
+        --readFilesIn $file'_R1.fastq.gz' $file'_R2.fastq.gz' \
+        --outFileNamePrefix $file --outSAMunmapped Within
+      done
+
+      mkdir other ; mv STARIndex_last/ other/ ; mv *Log* other/
+      '''
+    } else {
+      '''
+      list=`ls -1 | sed 's/_R.*//' | uniq`
+      
+      ## -- Mapping analyse ----------------------------------------------------------------- ##
+      for file in $list; do
+        STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN !{params.thread} \
+        --runThreadN !{params.thread} --genomeDir ../!{FNA} --readFilesCommand gunzip -c \
+        --readFilesIn $file'_R1.fastq.gz' $file'_R2.fastq.gz' \
+        --outFileNamePrefix $file --outSAMunmapped Within
+      done
+
+      mkdir other ; mv *Log* other/
+      '''
+      }}
+  } else {
+  process Mapping_bwa{ 
+    publishDir params.output+'/mapping/', mode: 'copy'
+    cpus params.thread
+    
+    input:
+    file data from Channel.fromPath(params.input+'*').collect()
+    file GTF from Channel.fromPath(params.GTF).collect()
+    file FNA from Channel.fromPath(params.FNA).collect()
+
+    output:
+    file "*.sorted.bam" into Mapping_bam
+    file "other/" into Mapping_Log
+    
+    shell:
+    if(params.index==null) {
+      '''
+      list=`ls -1 | sed 's/_R.*//' | uniq`
+
+      ## -- Index construction -------------------------------------------------------------- ##
+      bwa index hg38.fa
+
+      ## -- Mapping analyse ----------------------------------------------------------------- ##
+      for file in $list; do
+        bwa mem -o $file.sam -t !{params.thread} hg38.fa $file'_R1.fastq.gz' $file'_R2.fastq.gz'
+        samtools view -@ $T -b -O BAM -o $file.bam $file.sam
+        samtools sort -@ $T $file.bam -o $file.sorted.bam
+        samtools index -@ $T -b $file.sorted.bam
+      done
+
+      mkdir other ; mv STARIndex_last/ other/ ; mv *Log* other/
+      '''
+    } else {
+      '''
+      ## -- Mapping analyse ----------------------------------------------------------------- ##
+      list=`ls -1 | sed 's/_R.*//' | uniq`
+      for file in $list; do
+        bwa mem -o $file.sam -t !{params.thread} hg38.fa $file'_R1.fastq.gz' $file'_R2.fastq.gz'
+        samtools view -@ $T -b -O BAM -o $file.bam $file.sam
+        samtools sort -@ $T $file.bam -o $file.sorted.bam
+        samtools index -@ $T -b $file.sorted.bam
+      done
+      
+      #mkdir other ; mv *Log* other/
+      '''
+      }}
+  }
 
 process Intersection{ 
   publishDir params.output+'/intersect/', mode: 'copy'
