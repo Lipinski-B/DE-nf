@@ -124,7 +124,7 @@ if(params.mapper=="STAR"){
     
     input:
     file data from Channel.fromPath(params.input+'*').collect()
-    file data from Channel.fromPath(params.index+'/').collect()
+    file data from Channel.fromPath(params.index+'/*').collect()
 
     output:
     file "*.sorted.bam*" into Mapping_bam
