@@ -124,7 +124,7 @@ if(params.mapper=="STAR"){
     
     input:
     file data from Channel.fromPath(params.input+'*').collect()
-    //file data from Channel.fromPath(params.index+'/*').collect()
+    file data from Channel.fromPath(params.index+'/').collect()
 
     output:
     file "*.sorted.bam*" into Mapping_bam
@@ -135,9 +135,10 @@ if(params.mapper=="STAR"){
     list=`ls *fast[q.a]* -1 | sed 's/_R.*//' | uniq`
 
     ## -- Index construction -------------------------------------------------------------- ##
+    ixd_file=!{params.FNA}
     if [ "!{params.index}" == "null" ] ; then
-      bwa index !{params.FNA}
-      IDX=!{params.FNA}
+      bwa index "${ixd_file##*/}"/*.fa
+      IDX="${ixd_file##*/}"/*.fa
     else
       IDX="!{params.index}/*.fa"
     fi
@@ -156,7 +157,7 @@ if(params.mapper=="STAR"){
     
     if [ "!{params.index}" == "null" ] ; then
       mkdir other/BWAIndex_last
-      mv .fa.* other/BWAIndex_last/
+      mv "${ixd_file##*/}".fa.* other/BWAIndex_last/
     fi
 
     '''
