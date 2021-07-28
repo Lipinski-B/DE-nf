@@ -146,7 +146,7 @@ if(params.mapper=="STAR"){
     
     ## -- Mapping analyse ----------------------------------------------------------------- ##
     for file in $list; do
-      bwa mem -o $file.sam -t !{params.thread} $IDX $file'_R1_10K.fastq.gz' $file'_R2_10K.fastq.gz'
+      bwa mem -o $file.sam -t !{params.thread} $IDX $file'_R1.fastq.gz' $file'_R2.fastq.gz'
       samtools view -@ !{params.thread} -b -O BAM -o $file.bam $file.sam
       samtools sort -@ !{params.thread} $file.bam -o $file.sorted.bam
       samtools index -@ !{params.thread} -b $file.sorted.bam
