@@ -26,6 +26,7 @@ Le pipeline est fonctionnel sous les distributions de Linux.
 
 2. Software à installer : 
     - STAR (version 2.7.7a)
+    - BWA (version 0.7.17-r1188)
     - samtools (version 1.9)
     - fastqc (version 0.11)
     - multiqc (version 1.8)
@@ -36,9 +37,10 @@ Le pipeline est fonctionnel sous les distributions de Linux.
 
 
 3. Fichier complémentaire nécessaire :
-    - Fichier GTF : [Annotation pour Aedes albopictus](https://ftp.ncbi.nlm.nih.gov/genomes/all/annotation_releases/7160/102/GCF_006496715.1_Aalbo_primary.1/GCF_006496715.1_Aalbo_primary.1_genomic.gtf.gz)
-    - Fichier FNA : [Pour l'index STAR pour Aedes albopictus](https://ftp.ncbi.nlm.nih.gov/genomes/all/annotation_releases/7160/102/GCF_006496715.1_Aalbo_primary.1/GCF_006496715.1_Aalbo_primary.1_genomic.fna.gz)
+    - Fichier d'annotation GTF : [hg38](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/) ou [Aedes albopictus](https://ftp.ncbi.nlm.nih.gov/genomes/all/annotation_releases/7160/102/GCF_006496715.1_Aalbo_primary.1/GCF_006496715.1_Aalbo_primary.1_genomic.gtf.gz)
+    - Fichier FNA pour l'index : [hg38](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/) ou [Aedes albopictus](https://ftp.ncbi.nlm.nih.gov/genomes/all/annotation_releases/7160/102/GCF_006496715.1_Aalbo_primary.1/GCF_006496715.1_Aalbo_primary.1_genomic.fna.gz)
     - Fichier XLS : Métadonnée (voir dossier data/ pour Aedes albopictus)
+
 
 4. Autre : 
 Des containers Docker et Singularity ont également été élaboré en vue de permettre aux utilisateurs de lancer le pipeline sans avoir à installer toutes les dépendances nécessaires de la partie 2. Les installations des outils [Docker](https://docs.docker.com/engine/install/ubuntu/) et [Singularity](https://singularity.lbl.gov/install-linux) sont nécessaire au préalable. Voir la dernière section de "Usage" pour plus de détails.
@@ -48,7 +50,7 @@ Des containers Docker et Singularity ont également été élaboré en vue de pe
 ## Input
   | Type      | Description   |
   |-----------|---------------|
-  | Fichier FASTA | Corresponds aux fichiers FASTA d'intérêt. |
+  | Fichier FASTA/FASTQ | Corresponds aux fichiers FASTA/FASTQ d'intérêt compressés au format .gz. |
 
 
 ## Paramètres
@@ -61,24 +63,21 @@ Des containers Docker et Singularity ont également été élaboré en vue de pe
     | --GTF    | /data/fichier.gtf | Chemin où se trouve le fichier d'annotation à utiliser pour l'index via STAR et l'intersection via htseq-count. |
 
 
-* #### Paramètres obligatoires complémentaires pour l'index STAR :
+* #### Paramètres obligatoires complémentaires pour l'index :
     | Nom       | Exemple | Description     |
     |-----------|---------|-----------------|
-    | --STAR_Index | /data/STARIndex | Chemin vers le dossier où se trouve l'index STAR à utiliser pour le pipeline. Si cette option n'est pas utilisée, merci de vous assurer de fournir l'option --FNA en plus de l'option --GTF pour réaliser l'index STAR. Par défaut, null. |
-    | --FNA     | /data/fichier.fna | Chemin où se trouve le fichier .fna à fournir obligatoirement pour réaliser l'index STAR si l'option --STAR_Index n'est pas fourni. |
+    | --index | /data/index | Chemin vers le dossier où se trouve l'index STAR à utiliser pour le pipeline. Si cette option n'est pas utilisée, merci de vous assurer de fournir l'option --FNA en plus de l'option --GTF pour réaliser l'index. Par défaut, null. |
+    |  | Ou bien : |  |
+    | --FNA     | /data/fichier.fna | Chemin où se trouve le fichier .fna à fournir obligatoirement pour réaliser l'index si l'option --index n'est pas fourni. |
 
 
-* #### Paramètres optionelles complémentaires pour l'analayse d'expression différentielle sur R par défaut :
+* #### Paramètres optionelles/complémentaires :
     | Nom      | Exemple | Description     |
     |----------|---------|-----------------|
+    | --mapper | STAR/BWA| Mapper à utiliser. Par défaut BWA (MEM).|
+    | --thread | N       | Nombre de thread à utiliser pour le pipeline. Par défaut 1.|
     | --R      | on/off  | Option pour réaliser ("on") ou non ("off") l'analyse d'expression différentielle sur R par défaut sur pipeline. Par défaut, off. |
     | --metadata | /data/metadata.xls | Chemin où se trouve le fichier de métadonnées à utiliser pour l'analyse d'expression différentielle sur R. Obligatoire si l'option --R est mis sur "on" |
-
-
-* #### Paramètres optionelles :
-    | Nom      | Exemple | Description     |
-    |----------|---------|-----------------|
-    | --thread | N       | Nombre de thread à utiliser pour le pipeline. Par défaut 1.|
 
 
 
@@ -111,10 +110,10 @@ Des containers Docker et Singularity ont également été élaboré en vue de pe
 
 
 
-3. Dans le cas où toutes les dépendances sont installées localement et vous souhaitez utiliser votre propre index STAR pour l'analyse, vous pouvez suivre cette procédure. Attention pour des raisons de compatibilité, l'index ajouté avec l'option --STAR_Index doit être réalisé avec la même version de STAR que celle utilisée pour l'alignement.
+3. Dans le cas où toutes les dépendances sont installées localement et vous souhaitez utiliser votre propre index STAR pour l'analyse, vous pouvez suivre cette procédure. Attention pour des raisons de compatibilité, l'index ajouté avec l'option --index doit être réalisé avec la même version du mapper que celle utilisée pour l'alignement.
 
   ```
-  nextflow run Lipinski-B/DE-nf --input /input/ --GTF /data/fichier.gtf --STAR_Index /data/STARIndex --output /output/
+  nextflow run Lipinski-B/DE-nf --input /input/ --GTF /data/fichier.gtf --index /data/mapper_index --output /output/
   ```
 
 
@@ -130,18 +129,11 @@ Des containers Docker et Singularity ont également été élaboré en vue de pe
   nextflow run Lipinski-B/DE-nf -profile singularity --input /input/ --GTF /data/fichier.gtf --FNA /data/fichier.fna --output /output/
   ```
 
-## Description détaillé
-- process QC
-- process création d'un index STAR
-- process Mapping STAR + exeple de résultat dans le dossier output/
-- process Intersection htseq-count + exeple de résultat dans le dossier output/
-- process DE analyses sur R + exeple de résultat dans le dossier output/
+
 
 
 ## Contributions
 
   | Name      | Email | Description     |
   |-----------|-------|-----------------|
-  | Mandier Céline | celine.mandier@etu.univ-lyon1.fr | Developeur à contacter pour support |
-  | Thalamas Thibaut | thibaut.thalamas@etu.univ-lyon1.fr | Developeur à contacter pour support |
   | Lipinski Boris    | boris.lipinski@etu.univ-lyon1.fr | Developeur à contacter pour support |
