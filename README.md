@@ -11,9 +11,9 @@
 Ce pipeline a été développé en vue de réaliser des analyses RNAseq complètes à partir de fichiers FASTA issus de séquençage NGS.
 
 Voici un résumé de la méthode :
-- Réalisation d'un index de STAR (optionnel).
-- Alignement des reads sur le génome de référence via STAR.
-- Intersection des fichiers SAM sur l'annotation de référence via htseq-count.
+- Réalisation d'un index (optionnel).
+- Alignement des reads sur le génome de référence.
+- Intersection des fichiers SAM sur l'annotation de référence.
 - Élaboration de la matrice finale de comptage brute.
 - Analyse d'expression différentielle sur R via le package DESeq2.
 
