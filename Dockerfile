@@ -13,7 +13,7 @@ LABEL about.license="GNU-3.0"
 
 ################## INSTALLATION ######################
 COPY environnement.yml /
-RUN apt-get update && apt-get install -y procps && apt-get clean -y
+RUN apt-get update --allow-releaseinfo-change && apt-get install -y procps && apt-get clean -y
 RUN conda env create -n DE-nf -f /environnement.yml && conda clean -a
 RUN apt-get install -y curl
 RUN apt-get install -y cmake python-pip python-dev
