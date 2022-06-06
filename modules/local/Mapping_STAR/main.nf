@@ -16,8 +16,8 @@ process Mapping_STAR {
     if [ "${params.index}" == "null" ] ; then
       mkdir STARIndex_last/
       STAR --runThreadN ${params.thread} \
-        --runMode genomeGenerate --genomeDir STARIndex_last/ --genomeFastaFiles !{FNA} \
-        --sjdbGTFfile !{GTF} --sjdbOverhang 149 --genomeSAsparseD 2
+        --runMode genomeGenerate --genomeDir STARIndex_last/ --genomeFastaFiles ${params.FNA} \
+        --sjdbGTFfile ${params.GTF} --sjdbOverhang 149 --genomeSAsparseD 2
       IDX=STARIndex_last
     else
       IDX=!{FNA}
