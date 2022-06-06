@@ -122,12 +122,12 @@ if(params.R=="on"){
 
 
 // -- Modules :
-include { MultiQC }       from "${params.module}/local/MultiQC/main"
-include { Mapping_STAR }  from "${params.module}/local/Mapping_STAR/main"
-include { Mapping_BWA }   from "${params.module}/local/Mapping_BWA/main"
-include { Intersection }  from "${params.module}/local/Intersection/main"
-include { Merge_result }  from "${params.module}/local/Merge_result/main"
-include { DEA }           from "${params.module}/local/DEA/main"
+include { MultiQC }       from "${baseDir}/modules/local/MultiQC/main"
+include { Mapping_STAR }  from "${baseDir}/modules/local/Mapping_STAR/main"
+include { Mapping_BWA }   from "${baseDir}/modules/local/Mapping_BWA/main"
+include { Intersection }  from "${baseDir}/modules/local/Intersection/main"
+include { Merge_result }  from "${baseDir}/modules/local/Merge_result/main"
+include { DEA }           from "${baseDir}/modules/local/DEA/main"
 
 // -- Pipeline :
 workflow DE_nf {
