@@ -20,7 +20,7 @@ process Mapping_STAR {
         --sjdbGTFfile ${params.GTF} --sjdbOverhang 149 --genomeSAsparseD 2
       IDX=STARIndex_last
     else
-      IDX=!{FNA}
+      IDX=${params.FNA}
     fi
 
     ## -- Mapping analyse ----------------------------------------------------------------- ##
