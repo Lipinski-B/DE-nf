@@ -1,11 +1,47 @@
 #! /usr/bin/env nextflow
 
-params.help = null
 
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DE pipeline
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Github : https://github.com/Lipinski-B/DE-nf
+----------------------------------------------------------------------------------------
+*/
+
+nextflow.enable.dsl=2
+def nextflowMessage() {
+    log.info "N E X T F L O W  ~  DSL 2  ~  version ${workflow.nextflow.version} ${workflow.nextflow.build}"
+}
+
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    PARAMETERS VALUES
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+
+
+
+// -- RaiseError :
+if(!file(params.input).exists())      error "ERROR: --input must refer to an existing directory"
+if(!file(params.output).exists())     error "ERROR: --output must refer to an existing directory"
+
+
+
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    LOG INFO
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+log.info "--------------------------------------------------------------------------------------"
 log.info ""
-log.info "--------------------------------------------------------------------"
-log.info "  DE 1.0 : Pipeline RNAseq for the Differential Expression analysis."
-log.info "--------------------------------------------------------------------"
+log.info "          DE 1.0 : Pipeline RNAseq for the Differential Expression analysis."
+log.info ""
+log.info ""
+
 
 if (params.help) {
     log.info "------------------------------------------------------------------------------------------------------------------------------"
@@ -30,23 +66,47 @@ if (params.help) {
   
     exit 0
 } else {
-    /* Software information */
-    log.info "help:                               ${params.help}"
+    log.info "-------------------------------- Nextflow parameters ---------------------------------"
+    log.info ""
+    log.info "Project              : $workflow.projectDir"
+    log.info "Git repository       : $workflow.repository"
+    log.info "Release [Commit ID]  : $workflow.revision [$workflow.commitId]"
+    log.info "User Name            : $workflow.userName"
+    log.info "Run Name             : $workflow.runName"
+    log.info "Resume               : $workflow.resume"
+    log.info "Script Name          : $workflow.scriptName"
+    log.info "Script File          : $workflow.scriptFile"
+    log.info "Home Directory       : $workflow.homeDir"
+    log.info "Work Directory       : $workflow.workDir"
+    log.info "Launch Directory     : $workflow.launchDir"
+    log.info "Command line         : $workflow.commandLine"
+    log.info "Config Files         : $workflow.configFiles"
+    log.info "Config Profile       : $workflow.profile"
+    log.info "Container Engine     : $workflow.containerEngine"
+    log.info "Container            : $workflow.container"
+    log.info "Session ID           : $workflow.sessionId"
+    log.info "Script ID            : $workflow.scriptId"
+    log.info ""
+    log.info "-------------------------------- Workflow parameters ---------------------------------"
+    log.info ""
+    log.info "date                 : ${params.date}"
+    log.info "input                : ${params.input}"
+    log.info "output               : ${params.output}"
+    log.info "n                    : ${params.n}"
+    log.info ""
+    log.info "--------------------------------------------------------------------------------------"
+    log.info ""
 }
 
-// -- Path :
-params.input = null
-params.output = null
-params.GTF = null
 
-// -- Option :
-params.R = "off"
-params.thread = 1
-params.index = null
-params.FNA = params.index
-params.metadata = null
-params.mapper = "BWA"
-//params.metadata = "!{baseDir}/data/Metadata.xls"
+
+
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NAMED WORKFLOW FOR PIPELINE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
 // -- Pipeline :
 process MultiQC{ 
@@ -163,8 +223,6 @@ if(params.mapper=="STAR"){
     '''
   }
 }
-  
-
 process Intersection{ 
   publishDir params.output+'/intersect/', mode: 'copy'
   cpus params.thread
@@ -229,4 +287,36 @@ if(params.R=="on"){
     '''
     Rscript !{baseDir}/bin/DE.r finale.txt !{metadata} !{baseDir}/bin/grid_0.7-4.tar.gz !{baseDir}/bin/gridExtra_2.3.tar.gz
     '''
-    }}
+    }
+}
+
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    RUN WORKFLOW
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+workflow {
+    RNAseq_hemato( channel.fromFilePairs("${params.input}*_R{1,2}.fastq.gz") )
+}
+
+
+
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    THE END
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+workflow.onComplete {
+	this.nextflowMessage()
+	log.info "Completed at: " + workflow.complete
+	log.info "Duration    : " + workflow.duration
+	log.info "Success     : " + workflow.success
+	log.info "Exit status : " + workflow.exitStatus
+	log.info "Error report: " + (workflow.errorReport ?: '-')}
+
+workflow.onError {
+	this.nextflowMessage()
+	log.info "Workflow execution stopped with the following message:"
+	log.info "  " + workflow.errorMessage}
