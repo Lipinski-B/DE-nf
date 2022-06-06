@@ -133,12 +133,12 @@ include { DEA }           from "${baseDir}/modules/local/DEA/main"
 workflow DE_nf {
     take: fastq
     main:
-        MultiQC           (fastq)
-        Mapping_STAR      (fastq)
-        Mapping_BWA       (fastq)
-        Intersection      (fastq, bam.out.bam)
-        Merge_result      (fastq, bam.out.bam.collect())
-        DEA               (fastq)
+        //MultiQC           (fastq)
+        Mapping_STAR      (fastq.collect())
+        //Mapping_BWA       (fastq)
+        Intersection      (Mapping_STAR.out.Mapping_STAR.collect())
+        Merge_result      (Intersection.out.Intersection.collect())
+        //DEA               (Merge_result.out.Merge_result)
 }
 
 

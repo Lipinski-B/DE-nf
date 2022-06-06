@@ -2,13 +2,13 @@ process Merge_result{
   publishDir params.output+'/merge/', mode: 'copy'
   
   input:
-  file data from Intersect
+    file bam
   
   output:
-  file "finale.txt" into Result
+    file "finale.txt", emit: Merge_result
   
-  shell:
-  '''
+  script:
+  """
   ## -- Differancial expression analyse ------------------------------------------------- ##
   files=(*)
   awk '{print $1}' ${files[0]} > AAAA.txt
@@ -25,5 +25,5 @@ process Merge_result{
 
   paste -d "\t" * > finale.txt
   rm AAAA.txt
-  '''
+  """
 }
