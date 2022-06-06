@@ -123,7 +123,7 @@ if(params.R=="on"){
 
 // -- Modules :
 include { MultiQC }       from "${baseDir}/modules/local/MultiQC/main"
-include { MappingSTAR }  from "${baseDir}/modules/local/Mapping_STAR/main"
+include { Mapping_STAR }  from "${baseDir}/modules/local/Mapping_STAR/main"
 include { Mapping_BWA }   from "${baseDir}/modules/local/Mapping_BWA/main"
 include { Intersection }  from "${baseDir}/modules/local/Intersection/main"
 include { Merge_result }  from "${baseDir}/modules/local/Merge_result/main"
@@ -134,7 +134,7 @@ workflow DE_nf {
     take: fastq
     main:
         //MultiQC           (fastq)
-        MappingSTAR      (fastq.collect())
+        Mapping_STAR      (fastq)
         //Mapping_BWA       (fastq)
         Intersection      (Mapping_STAR.out.Mapping_STAR.collect())
         Merge_result      (Intersection.out.Intersection.collect())
