@@ -1,4 +1,4 @@
-process Intersection{ 
+process Intersection { 
   publishDir params.output+'/intersect/', mode: 'copy'
   cpus params.thread
 

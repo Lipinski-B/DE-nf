@@ -1,4 +1,4 @@
-process Merge_result{ 
+process Merge_result { 
   publishDir params.output+'/merge/', mode: 'copy'
   
   input:
