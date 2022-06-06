@@ -25,8 +25,8 @@ def nextflowMessage() {
 
 
 // -- RaiseError :
-if(!file(params.input).exists())      error "ERROR: --input must refer to an existing directory"
-if(!file(params.output).exists())     error "ERROR: --output must refer to an existing directory"
+//if(!file(params.input).exists())      error "ERROR: --input must refer to an existing directory"
+//if(!file(params.output).exists())     error "ERROR: --output must refer to an existing directory"
 
 
 
