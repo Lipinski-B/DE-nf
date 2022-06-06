@@ -1,4 +1,4 @@
-process Mapping_STAR { 
+process MappingSTAR {
     publishDir params.output+'/mapping/', mode: 'copy'
     cpus params.thread
     
