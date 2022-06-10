@@ -6,14 +6,14 @@ process Mapping_STAR {
       tuple val(ID), file(R)
 
     output:
-      tuple file("*Aligned.sortedByCoord.out.bam"), file("other/"), emit: result_STAR
+      tuple file("*Aligned.sortedByCoord.out.bam"), emit: result_STAR
+      tuple file("other/"), emit: other_STAR
     
     script:
     """
-    list=`ls *fast[q.a]* -1 | sed 's/_R.*//' | uniq`
-
+    mkdir STARIndex_last/
     ## -- Index construction -------------------------------------------------------------- ##
-    if [ "${params.index}" == "null" ] ; then
+    if [ ${params.index} == null ] ; then
       mkdir STARIndex_last/
       STAR --runThreadN ${params.thread} \
         --runMode genomeGenerate --genomeDir STARIndex_last/ --genomeFastaFiles ${params.FNA} \
@@ -24,13 +24,10 @@ process Mapping_STAR {
     fi
 
     ## -- Mapping analyse ----------------------------------------------------------------- ##
-    for file in $list; do
-      STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN ${params.thread} \
-      --runThreadN ${params.thread} --genomeDir $IDX --readFilesCommand gunzip -c \
-      --readFilesIn $file'_R1.fastq.gz' $file'_R2.fastq.gz' \
-      --outFileNamePrefix $file --outSAMunmapped Within
-    done
-
+    STAR --outSAMtype BAM SortedByCoordinate --outBAMsortingThreadN ${params.thread} \
+      --runThreadN ${params.thread} --genomeDir "\$IDX" --readFilesCommand gunzip -c \
+      --readFilesIn ${R} --outFileNamePrefix ${ID} --outSAMunmapped Within
+    
     mkdir other
 
     if [ "${params.index}" == "null" ] ; then

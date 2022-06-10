@@ -3,7 +3,7 @@ process Intersection {
   cpus params.thread
 
   input:
-    file data
+    file bam
     //file GTF from Channel.fromPath(params.GTF).collect()
   
   output:
@@ -13,7 +13,7 @@ process Intersection {
   """
   ## -- Intersection analyse ----------------------------------------------- ##
   for file in *.bam; do
-    htseq-count -f bam -n ${params.thread} $file ${params.GTF} > ${file}_intersect.txt
+    htseq-count -f bam -n ${params.thread} \$file ${params.GTF} > \${file}_intersect.txt
   done
   """
 }
