@@ -3,10 +3,10 @@ process Mapping_STAR {
     cpus params.thread
     
     input:
-        tuple val(ID), file(R)
+      tuple val(ID), file(R)
 
     output:
-        file "*Aligned.sortedByCoord.out.bam", emit: result_STAR
+      tuple file("*Aligned.sortedByCoord.out.bam"), file("other/"), emit: result_STAR
     
     script:
     """

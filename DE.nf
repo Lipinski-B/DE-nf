@@ -137,8 +137,8 @@ workflow DE_nf {
         Mapping_STAR      (fastq)
         //Mapping_BWA       (fastq)
         Intersection      (Mapping_STAR.out.result_STAR.collect())
-        Merge_result      (Intersection.out.Intersection.collect())
-        //DEA               (Merge_result.out.Merge_result)
+        Merge_result      (Intersection.out.Intersect.collect())
+        //DEA               (Merge_result.out.merge_result)
 }
 
 

@@ -5,7 +5,7 @@ process Merge_result {
     file bam
   
   output:
-    file "finale.txt", emit: Merge_result
+    tuple file("finale.txt"), emit: merge_result
   
   shell:
   '''

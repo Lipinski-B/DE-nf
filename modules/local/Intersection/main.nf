@@ -3,11 +3,11 @@ process Intersection {
   cpus params.thread
 
   input:
-  file data from Mapping_bam
-  file GTF from Channel.fromPath(params.GTF).collect()
+    file data
+    //file GTF from Channel.fromPath(params.GTF).collect()
   
   output:
-  file "*.txt", emit: Intersect
+    tuple file('*.txt'), emit: Intersect
   
   script:
   """
