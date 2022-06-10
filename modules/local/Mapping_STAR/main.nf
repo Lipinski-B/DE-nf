@@ -6,7 +6,7 @@ process Mapping_STAR {
         tuple val(ID), file(R)
 
     output:
-        tuple file "*Aligned.sortedByCoord.out.bam", file "other/", emit: Mapping_STAR
+        tuple file "*Aligned.sortedByCoord.out.bam", file "other/"
     
     script:
     """
