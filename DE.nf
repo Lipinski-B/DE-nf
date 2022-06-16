@@ -110,15 +110,6 @@ if (params.help) {
 
 // -- Pipeline :
 
-if(params.mapper=="STAR"){
- 
-} else {
-  }
-
-if(params.R=="on"){
-
-}
-
 
 
 // -- Modules :
