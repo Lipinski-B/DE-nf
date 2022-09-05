@@ -8,8 +8,8 @@ process Mapping_BWA{
     //file data from Channel.fromPath(params.index+'/*').collect()
 
     output:
-    tuple file("*.sorted.bam*"), emit: result_BAW
-    tuple file("other/"), emit: other_BAW
+    tuple file("*.sorted.bam*"), emit: result_BWA
+    tuple file("other/"), emit: other_BWA
     //file "*.sorted.bam*" into Mapping_bam
     //file "other/" into Mapping_Log
     
